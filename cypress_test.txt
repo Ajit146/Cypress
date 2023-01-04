@@ -1,0 +1,100 @@
+describe('Testing Login Page, Quotation, Profile, logout', () => {
+  //before suite
+  before(`Launching Web Application`, function () {
+    Cypress.on('uncaught:exception', (error, runnable) => {
+      return false;
+    });
+    //   /****Open the URL********/
+    //   cy.visit('/');
+    //   /**********Login To Application***********/
+  });
+
+  // //After suite (it), actions to be performed
+  // afterEach('Logout', () => {
+  //   cy.get('.btn.btn-danger').click();
+  // });
+
+  describe('Test Login failure', () => {
+    it('Enter incorrect username and incorrect password', () => {
+      cy.visit('https://demo.guru99.com/insurance/v1/index.php');
+      cy.get('#email').type('ajitsingh');
+      cy.get('#password').type('WrongPassword');
+      cy.get('input.btn.btn-default').click();
+      cy.contains('Enter your Email address and password correct').should(
+        'be.visible'
+      );
+    });
+    it('Enter correct username and correct password', () => {
+      cy.visit('https://demo.guru99.com/insurance/v1/index.php');
+      cy.get('#email').type('ajitsangwan1993@gmail.com');
+      cy.get('#password').type('Singh@123');
+      cy.get('input.btn.btn-default').click();
+      cy.get('div.content').should('include.text', 'Signed in as');
+      cy.get('.btn.btn-danger').click();
+    });
+    it('Request Quotation', () => {
+      cy.visit('https://demo.guru99.com/insurance/v1/index.php');
+      cy.get('#email').type('ajitsangwan1993@gmail.com');
+      cy.get('#password').type('Singh@123');
+      cy.get('input.btn.btn-default').click();
+      cy.get('div.content').should('include.text', 'Signed in as');
+      cy.get('#newquote').click();
+      cy.get('input#quotation_windscreenrepair_t').check('Yes');
+      cy.get('#quotation_breakdowncover')
+        .select('Roadside')
+        .should('have.value', '2');
+      cy.get('input#quotation_incidents').type('Incidents');
+      cy.get('input#quotation_vehicle_attributes_registration').type(
+        'Registration'
+      );
+      cy.get('#quotation_vehicle_attributes_parkinglocation')
+        .select('Locked Garage')
+        .should('have.value', 'Garage');
+      cy.get('#quotation_vehicle_attributes_policystart_1i')
+        .select('2023')
+        .should('have.value', '2023');
+      cy.get('#quotation_vehicle_attributes_policystart_2i')
+        .select('April')
+        .should('have.value', '4');
+      cy.get('#quotation_vehicle_attributes_policystart_3i')
+        .select('9')
+        .should('have.value', '9');
+      cy.get(".actions [type = 'submit' ]").click();
+      cy.contains('You have saved this quotation!').should('be.visible');
+    });
+
+    it.skip('Retrieve and verify Quotation', () => {
+      cy.visit('https://demo.guru99.com/insurance/v1/index.php');
+      cy.get('#email').type('ajitsangwan1993@gmail.com');
+      cy.get('#password').type('Singh@123');
+      cy.get('input.btn.btn-default').click();
+      cy.get('div.content').should('include.text', 'Signed in as');
+      cy.get('#retrieve').click();
+      cy.get("[placeholder = 'identification number' ]").type('19775');
+    });
+    it('Retrieve and verify Quotation', () => {
+      cy.visit('https://demo.guru99.com/insurance/v1/index.php');
+      cy.get('#email').type('ajitsangwan1993@gmail.com');
+      cy.get('#password').type('Singh@123');
+      cy.get('input.btn.btn-default').click();
+      cy.get('div.content').should('include.text', 'Signed in as');
+      cy.get('#retrieve').click();
+      cy.get("[placeholder = 'identification number' ]").type('19775');
+      cy.get('#getquote').click();
+      cy.get('body > table > tbody > tr:nth-child(3) > td:nth-child(2)');
+      cy.get('body > table > tbody > tr td:nth-child(1)').each(
+        ($el, index, $list) => {
+          const Name = $el.text();
+          if (Name.includes('Parking Location')) {
+            cy.get('body > table > tbody > tr td:nth-child(2)')
+              .eq(index)
+              .then(($txt) => {
+                const Value = $txt.text();
+                expect(Value).to.equal('Garage');
+              });
+          }
+        }
+      );
+    });
+  });
+});
